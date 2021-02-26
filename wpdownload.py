@@ -12,6 +12,7 @@ print("recv heartbeat", master.mavlink20())
 master.mav.mission_request_list_send(0, 0, mission_type)
 mission_count = -1
 expect_seq = 0
+csv = []
 while True:
     try:
         msg = master.recv_msg()
@@ -28,10 +29,13 @@ while True:
         elif msg_type == "MISSION_ITEM_INT":
             if msg.seq == expect_seq:
                 print("recv mission item", msg.seq)
+                csv.append(str(msg.seq)+","+str(msg.current)+","+str(msg.frame)+","+str(msg.command)+","+str(msg.param1)+","+str(msg.param2)+","+str(msg.param3)+","+str(msg.param4)+","+str(msg.x)+","+str(msg.y)+","+str(msg.z)+","+str(msg.autocontinue)+"\n")
                 expect_seq = expect_seq + 1
                 if expect_seq < mission_count:
                     master.mav.mission_request_int_send(0, 0, expect_seq, mission_type)
                 else:
                     master.mav.mission_ack_send(0, 0, 0, mission_type)
                     print("done")
+                    with open(file_name, 'w') as out_file:
+                        out_file.writelines(csv)
                     break

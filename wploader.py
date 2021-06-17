@@ -11,6 +11,7 @@ with open(file_name) as csv_file:
 
 #print(waypoints)
 master = mavutil.mavlink_connection(device=sys.argv[1], source_system=255)
+#master.mav.heartbeat_send(6, 0, 0, 0, 0)
 master.recv_match(type="HEARTBEAT", blocking=True)
 print("heartbeat recv", master.mavlink20())
 master.mav.mission_count_send(0, 0, len(waypoints), mission_type)

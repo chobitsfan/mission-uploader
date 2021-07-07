@@ -2,15 +2,31 @@ import os
 os.environ["MAVLINK20"] = "1"
 from pymavlink import mavutil
 import csv, sys
+import serial.tools.list_ports
 
-mission_type = int(sys.argv[3])
-file_name = sys.argv[2]
+file_name = sys.argv[1]
 with open(file_name) as csv_file:
     data = csv.reader(csv_file)
     waypoints = list(data)
+mission_type = 0
+if waypoints[0][3] == "5000":
+    print("fence")
+    mission_type = 1
+
+com_ports = serial.tools.list_ports.comports()
+apm_com_port = ""
+for com_port in com_ports:
+    if com_port.description.startswith("ArduPilot MAVLink"):
+        print(com_port.description)
+        apm_com_port = com_port.device
+        break
+if apm_com_port == "":
+    print("cannot find FC com port")
+    quit()
 
 #print(waypoints)
-master = mavutil.mavlink_connection(device=sys.argv[1], source_system=255)
+master = mavutil.mavlink_connection(device=apm_com_port, source_system=255)
+#need to send something for network
 #master.mav.heartbeat_send(6, 0, 0, 0, 0)
 master.recv_match(type="HEARTBEAT", blocking=True)
 print("heartbeat recv", master.mavlink20())

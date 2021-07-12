@@ -30,6 +30,10 @@ master = mavutil.mavlink_connection(device=apm_com_port, source_system=255)
 #master.mav.heartbeat_send(6, 0, 0, 0, 0)
 master.recv_match(type="HEARTBEAT", blocking=True)
 print("heartbeat recv", master.mavlink20())
+if mission_type == 1:
+    master.mav.param_set_send(0, 0, "FENCE_ALT_MAX".encode('utf8'), int(waypoints[0][10])*0.01, 9)
+msg = master.recv_match(type="PARAM_VALUE", blocking=True)
+print("fence_alt_max", msg.param_value)
 master.mav.mission_count_send(0, 0, len(waypoints), mission_type)
 while True:
     try:

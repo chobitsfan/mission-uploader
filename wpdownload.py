@@ -12,6 +12,12 @@ for com_port in com_ports:
         apm_com_port = com_port.device
         break
 if apm_com_port == "":
+    for com_port in com_ports:
+        if com_port.description.startswith("ArduPilot"):
+            print(com_port.description)
+            apm_com_port = com_port.device
+            break
+if apm_com_port == "":
     print("cannot find FC com port")
     quit()
 
